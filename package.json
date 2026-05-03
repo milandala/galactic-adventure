@@ -1,0 +1,23 @@
+{
+  "cds": {
+    "requires": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "spacepilot": {
+            "password": "123",
+            "attr": {
+              "planetCode": "EARTH"
+            }
+          },
+          "alien": {
+            "password": "123",
+            "attr": {
+              "planetCode": "MARS"
+            }
+          }
+        }
+      }
+    }
+  }
+}
