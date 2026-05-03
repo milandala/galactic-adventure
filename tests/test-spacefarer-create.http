@@ -1,0 +1,11 @@
+POST http://localhost:4004/odata/v4/cosmic/Spacefarers
+Authorization: Basic spacepilot 123
+Content-Type: application/json
+
+{
+  "name": "Zara",
+  "stardustCollection": 2,
+  "wormholeNavigationSkill": 1,
+  "spacesuitColor": "blue",
+  "originPlanet_code": "EARTH"
+}
