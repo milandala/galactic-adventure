@@ -2,7 +2,7 @@ using {galactic as db} from '../db/schema';
 
 service CosmicService @(requires: 'authenticated-user') {
 
-  @restrict: [{
+  @restrict       : [{
     grant: [
       'CREATE',
       'READ',
@@ -11,6 +11,11 @@ service CosmicService @(requires: 'authenticated-user') {
     ],
     where: 'originPlanet.code = $user.planetCode'
   }]
+  @cds.query.limit: {
+    default: 10,
+    max    : 20
+  }
+  @odata.draft.enabled
   entity Spacefarers as projection on db.Spacefarers;
 
   entity Departments as projection on db.Departments;
