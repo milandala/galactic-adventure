@@ -18,11 +18,7 @@ annotate CosmicService.Spacefarers with @(
         {
             Value: spacesuitColor,
             Label: 'Spacesuit Color'
-        },
-        {
-            Value: originPlanet_code,
-            Label: 'Origin Planet'
-        },
+        }
     ],
 
     UI.SelectionFields          : [
@@ -52,6 +48,10 @@ annotate CosmicService.Spacefarers with @(
             {
                 Value: department.name,
                 Label: 'Department'
+            },
+            {
+                Value: position.name,
+                Label: 'Position'
             },
             {
                 Value: originPlanet_code,
