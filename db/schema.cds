@@ -3,8 +3,7 @@ using {cuid} from '@sap/cds/common';
 namespace galactic;
 
 entity Spacefarers : cuid {
-    @mandatory
-    name                    : String;
+    name                    : String @mandatory;
     stardustCollection      : Integer;
     wormholeNavigationSkill : Integer;
     originPlanet            : Association to Planets;
