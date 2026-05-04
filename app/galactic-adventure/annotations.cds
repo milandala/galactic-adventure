@@ -50,13 +50,12 @@ annotate CosmicService.Spacefarers with @(
                 Label: 'Wormhole Skill'
             },
             {
+                Value: department.name,
+                Label: 'Department'
+            },
+            {
                 Value: originPlanet_code,
                 Label: 'Origin Planet'
-            },
-
-            {
-                Value: department_ID,
-                Label: 'Department'
             },
         ]
     },
@@ -71,25 +70,23 @@ annotate CosmicService.Spacefarers with @(
 );
 
 annotate CosmicService.Spacefarers with {
-    originPlanet   @Core.Immutable;
-
-    department     @Common.ValueList: {
-        CollectionPath: 'Departments',
-        Parameters    : [
-            {
-                $Type            : 'Common.ValueListParameterOut',
-                LocalDataProperty: department_ID,
-                ValueListProperty: 'ID'
-            },
-            {
-                $Type            : 'Common.ValueListParameterDisplayOnly',
-                ValueListProperty: 'name'
-            },
-            {
-                $Type            : 'Common.ValueListParameterDisplayOnly',
-                ValueListProperty: 'role'
-            }
-        ]
-    };
-    department_ID  @Common.Text: department.name  @UI.TextArrangement: #TextOnly;
+    originPlanet @Core.Immutable;
 }
+
+annotate CosmicService.Departments with @(
+    Capabilities.InsertRestrictions.Insertable: false,
+    Capabilities.UpdateRestrictions.Updatable : false,
+    Capabilities.DeleteRestrictions.Deletable : false
+);
+
+annotate CosmicService.Positions with @(
+    Capabilities.InsertRestrictions.Insertable: false,
+    Capabilities.UpdateRestrictions.Updatable : false,
+    Capabilities.DeleteRestrictions.Deletable : false
+);
+
+annotate CosmicService.Planets with @(
+    Capabilities.InsertRestrictions.Insertable: false,
+    Capabilities.UpdateRestrictions.Updatable : false,
+    Capabilities.DeleteRestrictions.Deletable : false
+);

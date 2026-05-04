@@ -1,5 +1,6 @@
 using {galactic as db} from '../db/schema';
 
+
 service CosmicService @(requires: 'authenticated-user') {
 
   @restrict       : [{
@@ -18,8 +19,22 @@ service CosmicService @(requires: 'authenticated-user') {
   @odata.draft.enabled
   entity Spacefarers as projection on db.Spacefarers;
 
+  @restrict: [{
+    grant: 'READ',
+    to   : 'authenticated-user'
+  }]
   entity Departments as projection on db.Departments;
+
+  @restrict: [{
+    grant: 'READ',
+    to   : 'authenticated-user'
+  }]
   entity Positions   as projection on db.Positions;
+
+  @restrict: [{
+    grant: 'READ',
+    to   : 'authenticated-user'
+  }]
   entity Planets     as projection on db.Planets;
 
 }
