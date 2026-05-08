@@ -7,18 +7,9 @@ annotate CosmicService.Spacefarers with @(
     },
 
     UI.LineItem                 : [
-        {
-            Value: name,
-            Label: 'Name'
-        },
-        {
-            Value: stardustCollection,
-            Label: 'Stardust Collection'
-        },
-        {
-            Value: spacesuitColor,
-            Label: 'Spacesuit Color'
-        }
+        {Value: name},
+        {Value: stardustCollection},
+        {Value: spacesuitColor}
     ],
 
     UI.SelectionFields          : [
@@ -29,34 +20,16 @@ annotate CosmicService.Spacefarers with @(
     UI.FieldGroup #CosmicDetails: {
         Label: 'Cosmic Details',
         Data : [
+            {Value: name},
+            {Value: stardustCollection},
+            {Value: spacesuitColor},
+            {Value: wormholeNavigationSkill},
+            {Value: department.name},
+            {Value: position.name},
             {
-                Value: name,
-                Label: 'Name'
-            },
-            {
-                Value: stardustCollection,
-                Label: 'Stardust Collection'
-            },
-            {
-                Value: spacesuitColor,
-                Label: 'Spacesuit Color'
-            },
-            {
-                Value: wormholeNavigationSkill,
-                Label: 'Wormhole Skill'
-            },
-            {
-                Value: department.name,
-                Label: 'Department'
-            },
-            {
-                Value: position.name,
-                Label: 'Position'
-            },
-            {
-                Value: originPlanet_code,
+                Value: originPlanet.name,
                 Label: 'Origin Planet'
-            },
+            }
         ]
     },
 
