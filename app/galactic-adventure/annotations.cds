@@ -69,6 +69,18 @@ annotate CosmicService.Spacefarers with @(
 
 );
 
+annotate CosmicService.Spacefarers with @(Capabilities: {NavigationRestrictions: {
+    $Type               : 'Capabilities.NavigationRestrictionsType',
+    RestrictedProperties: [{
+        $Type             : 'Capabilities.NavigationPropertyRestriction',
+        NavigationProperty: DraftAdministrativeData,
+        FilterRestrictions: {
+            $Type     : 'Capabilities.FilterRestrictionsType',
+            Filterable: false,
+        },
+    }, ],
+}, });
+
 annotate CosmicService.Spacefarers with {
     originPlanet @Core.Immutable;
 }
