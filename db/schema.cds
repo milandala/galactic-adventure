@@ -7,7 +7,7 @@ entity Spacefarers : cuid {
     stardustCollection      : Integer;
     wormholeNavigationSkill : Integer;
     originPlanet            : Association to Planets;
-    spacesuitColor          : String;
+    spacesuitColor          : Association to SpacesuitColors;
 
     department              : Association to Departments;
     position                : Association to Positions;
@@ -27,4 +27,9 @@ entity Planets {
     key code        : String;
         name        : String;
         dangerLevel : Integer;
+}
+
+entity SpacesuitColors {
+    key code : String;
+        name : String;
 }

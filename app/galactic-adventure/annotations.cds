@@ -1,6 +1,5 @@
 annotate CosmicService.Spacefarers with @(
 
-
     UI.HeaderInfo               : {
         TypeName      : 'Spacefarer',
         TypeNamePlural: 'Spacefarers',
@@ -9,12 +8,15 @@ annotate CosmicService.Spacefarers with @(
     UI.LineItem                 : [
         {Value: name},
         {Value: stardustCollection},
-        {Value: spacesuitColor}
+        {
+            Value: spacesuitColor.name,
+            Label: 'Spacesuit color'
+        },
     ],
 
     UI.SelectionFields          : [
         stardustCollection,
-        spacesuitColor
+        spacesuitColor_code
     ],
 
     UI.FieldGroup #CosmicDetails: {
@@ -22,13 +24,22 @@ annotate CosmicService.Spacefarers with @(
         Data : [
             {Value: name},
             {Value: stardustCollection},
-            {Value: spacesuitColor},
+            {
+                Value: spacesuitColor.name,
+                Label: 'Spacesuit color'
+            },
             {Value: wormholeNavigationSkill},
-            {Value: department.name},
-            {Value: position.name},
+            {
+                Value: department.name,
+                Label: 'Department'
+            },
+            {
+                Value: position.name,
+                Label: 'Position'
+            },
             {
                 Value: originPlanet.name,
-                Label: 'Origin Planet'
+                Label: 'Origin planet'
             }
         ]
     },
@@ -38,8 +49,6 @@ annotate CosmicService.Spacefarers with @(
         Label : 'Cosmic Details',
         Target: '@UI.FieldGroup#CosmicDetails'
     }]
-
-
 );
 
 annotate CosmicService.Spacefarers with @(Capabilities: {NavigationRestrictions: {
@@ -55,7 +64,30 @@ annotate CosmicService.Spacefarers with @(Capabilities: {NavigationRestrictions:
 }, });
 
 annotate CosmicService.Spacefarers with {
-    originPlanet @Core.Immutable;
+    originPlanet   @Core.Immutable;
+    spacesuitColor @(
+        Common.Label                   : 'Spacesuit color',
+        Common                         : {
+            Text           : spacesuitColor.name,
+            TextArrangement: #TextOnly
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'Spacesuit Color',
+            CollectionPath: 'SpacesuitColors',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterIn',
+                    LocalDataProperty: spacesuitColor_code,
+                    ValueListProperty: 'code'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                }
+            ]
+        }
+    );
 }
 
 annotate CosmicService.Departments with @(

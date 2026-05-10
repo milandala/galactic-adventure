@@ -17,24 +17,29 @@ service CosmicService @(requires: 'authenticated-user') {
     max    : 20
   }
   @odata.draft.enabled
-  entity Spacefarers as projection on db.Spacefarers;
+  entity Spacefarers     as projection on db.Spacefarers;
 
   @restrict: [{
     grant: 'READ',
     to   : 'authenticated-user'
   }]
-  entity Departments as projection on db.Departments;
+  entity Departments     as projection on db.Departments;
 
   @restrict: [{
     grant: 'READ',
     to   : 'authenticated-user'
   }]
-  entity Positions   as projection on db.Positions;
+  entity Positions       as projection on db.Positions;
 
   @restrict: [{
     grant: 'READ',
     to   : 'authenticated-user'
   }]
-  entity Planets     as projection on db.Planets;
+  entity Planets         as projection on db.Planets;
 
+  @restrict: [{
+    grant: 'READ',
+    to   : 'authenticated-user'
+  }]
+  entity SpacesuitColors as projection on db.SpacesuitColors;
 }

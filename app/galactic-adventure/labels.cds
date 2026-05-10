@@ -1,20 +1,24 @@
 annotate CosmicService.Spacefarers with {
     name                    @title: 'Name';
-    stardustCollection      @title: 'Stardust Collection';
-    spacesuitColor          @title: 'Spacesuit Color';
-    wormholeNavigationSkill @title: 'Wormhole Skill';
+    stardustCollection      @title: 'Stardust collection';
+    wormholeNavigationSkill @title: 'Wormhole skill';
 }
 
 annotate CosmicService.Departments with {
-    name @title: 'Department';
+    name @title: 'Name';
 }
 
 annotate CosmicService.Positions with {
-    name @title: 'Position';
+    name @title: 'Name';
 }
 
 annotate CosmicService.Planets with {
     code        @title: 'Code';
     name        @title: 'Name';
     dangerLevel @title: 'Danger Level';
+}
+
+annotate CosmicService.SpacesuitColors with {
+    code @title: 'Code';
+    name @title: 'Name';
 }
