@@ -3,10 +3,7 @@ using {galactic as db} from '../db/schema';
 @requires: 'admin'
 service CosmicServiceAdmin {
 
-  @cds.query.limit: {
-    default: 10,
-    max    : 20
-  }
+
   @odata.draft.enabled
   entity Spacefarers     as projection on db.Spacefarers;
 
