@@ -15,7 +15,7 @@ annotate CosmicService.Positions with {
 annotate CosmicService.Planets with {
     code        @title: 'Code';
     name        @title: 'Name';
-    dangerLevel @title: 'Danger Level';
+    dangerLevel @title: 'Danger level';
 }
 
 annotate CosmicService.SpacesuitColors with {
