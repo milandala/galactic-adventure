@@ -1,0 +1,1 @@
+using CosmicServiceAdmin as service from '../../srv/cosmic-service-admin';
