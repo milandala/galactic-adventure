@@ -5,8 +5,6 @@ class CosmicService extends cds.ApplicationService {
   init() {
     const validateSpacefarerData = (req) => {
       const data = req.data;
-      console.log("🔍 validateSpacefarerData");
-      console.log(data);
 
       const wormholeSkillThreshold = 0;
       const stardustCollectionThreshold = 0;
@@ -21,23 +19,32 @@ class CosmicService extends cds.ApplicationService {
         errorList.push("Stardust collection must be a number");
       }
 
+      if (typeof data.originPlanet_code !== "string") {
+        errorList.push("Origin planet code must be a string");
+      }
+
       if (data.wormholeNavigationSkill < wormholeSkillThreshold) {
         errorList.push(
           `Wormhole navigation skill must be above ${wormholeSkillThreshold}`,
         );
       }
+
       if (data.stardustCollection < stardustCollectionThreshold) {
         errorList.push(
           `Stardust collection must be above ${stardustCollectionThreshold}`,
         );
       }
+
+      if (req.data.originPlanet_code !== req.user.attr.planetCode) {
+        errorList.push("Origin planet code does not match user's planet code");
+      }
+
       if (errorList.length > 0) {
         req.reject(400, errorList.join("\n\n"));
       }
     };
 
     const enhanceSpacefarerData = (data) => {
-      console.log("enhanceSpacefarerData");
       const wormholeSkillEnhancement = 5;
       const stardustCollectionEnhancement = 5;
 
@@ -50,8 +57,11 @@ class CosmicService extends cds.ApplicationService {
       enhanceSpacefarerData(req.data);
     });
 
+    this.before("CREATE", "Spacefarers.drafts", (req) => {
+      req.data.originPlanet_code = req.user.attr.planetCode;
+    });
+
     this.before("UPDATE", "Spacefarers", (req) => {
-      console.log("🔍 Validating spacefarer update...");
       validateSpacefarerData(req);
     });
 

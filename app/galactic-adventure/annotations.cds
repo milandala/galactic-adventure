@@ -24,20 +24,10 @@ annotate CosmicService.Spacefarers with @(
         Data : [
             {Value: name},
             {Value: stardustCollection},
-            {Value: spacesuitColor_code},
             {Value: wormholeNavigationSkill},
-            {
-                Value: department.name,
-                Label: 'Department'
-            },
-            {
-                Value: position.name,
-                Label: 'Position'
-            },
-            {
-                Value: originPlanet.name,
-                Label: 'Origin planet'
-            }
+            {Value: spacesuitColor_code},
+            {Value: department_ID},
+            {Value: position_ID}
         ]
     },
 
@@ -61,31 +51,6 @@ annotate CosmicService.Spacefarers with @(Capabilities: {NavigationRestrictions:
 }, });
 
 annotate CosmicService.Spacefarers with {
-    originPlanet   @Core.Immutable
-                   @(
-        Common.ValueList               : {
-            Label         : 'Select Planet for New Spacefarer',
-            CollectionPath: 'Planets',
-            Parameters    : [
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    LocalDataProperty: originPlanet_code,
-                    ValueListProperty: 'code'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'name'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'dangerLevel'
-                }
-            ]
-        },
-        Common.ValueListWithFixedValues: true,
-        Common.Text                    : originPlanet.name,
-        Common.TextArrangement         : #TextOnly
-    );
 
     spacesuitColor @(
         Common.Label                   : 'Spacesuit color',
@@ -110,22 +75,52 @@ annotate CosmicService.Spacefarers with {
             ]
         }
     );
+
+    department     @(
+        Common.Label                   : 'Department',
+        Common                         : {
+            Text           : department.name,
+            TextArrangement: #TextOnly
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'Department',
+            CollectionPath: 'Departments',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterIn',
+                    LocalDataProperty: department_ID,
+                    ValueListProperty: 'ID'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                }
+            ]
+        }
+    );
+
+    position       @(
+        Common.Label                   : 'Position',
+        Common                         : {
+            Text           : position.name,
+            TextArrangement: #TextOnly
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'Position',
+            CollectionPath: 'Positions',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterIn',
+                    LocalDataProperty: position_ID,
+                    ValueListProperty: 'ID'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                }
+            ]
+        }
+    );
 }
-
-annotate CosmicService.Departments with @(
-    Capabilities.InsertRestrictions.Insertable: false,
-    Capabilities.UpdateRestrictions.Updatable : false,
-    Capabilities.DeleteRestrictions.Deletable : false
-);
-
-annotate CosmicService.Positions with @(
-    Capabilities.InsertRestrictions.Insertable: false,
-    Capabilities.UpdateRestrictions.Updatable : false,
-    Capabilities.DeleteRestrictions.Deletable : false
-);
-
-annotate CosmicService.Planets with @(
-    Capabilities.InsertRestrictions.Insertable: false,
-    Capabilities.UpdateRestrictions.Updatable : false,
-    Capabilities.DeleteRestrictions.Deletable : false
-);
