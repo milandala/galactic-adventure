@@ -1,7 +1,7 @@
 const cds = require("@sap/cds");
 const { sendWelcomeEmail } = require("./email-service");
 
-class CosmicService extends cds.ApplicationService {
+class CosmicServiceAdmin extends cds.ApplicationService {
   init() {
     const validateSpacefarerData = (req) => {
       const data = req.data;
@@ -59,4 +59,4 @@ class CosmicService extends cds.ApplicationService {
   }
 }
 
-module.exports = { CosmicService };
+module.exports = { CosmicServiceAdmin };
