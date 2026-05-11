@@ -24,10 +24,7 @@ annotate CosmicService.Spacefarers with @(
         Data : [
             {Value: name},
             {Value: stardustCollection},
-            {
-                Value: spacesuitColor.name,
-                Label: 'Spacesuit color'
-            },
+            {Value: spacesuitColor_code},
             {Value: wormholeNavigationSkill},
             {
                 Value: department.name,
@@ -64,7 +61,32 @@ annotate CosmicService.Spacefarers with @(Capabilities: {NavigationRestrictions:
 }, });
 
 annotate CosmicService.Spacefarers with {
-    originPlanet   @Core.Immutable;
+    originPlanet   @Core.Immutable
+                   @(
+        Common.ValueList               : {
+            Label         : 'Select Planet for New Spacefarer',
+            CollectionPath: 'Planets',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    LocalDataProperty: originPlanet_code,
+                    ValueListProperty: 'code'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'dangerLevel'
+                }
+            ]
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.Text                    : originPlanet.name,
+        Common.TextArrangement         : #TextOnly
+    );
+
     spacesuitColor @(
         Common.Label                   : 'Spacesuit color',
         Common                         : {
