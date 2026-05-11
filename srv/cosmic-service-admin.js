@@ -5,8 +5,6 @@ class CosmicService extends cds.ApplicationService {
   init() {
     const validateSpacefarerData = (req) => {
       const data = req.data;
-      console.log("🔍 validateSpacefarerData");
-      console.log(data);
 
       const wormholeSkillThreshold = 0;
       const stardustCollectionThreshold = 0;
@@ -37,7 +35,6 @@ class CosmicService extends cds.ApplicationService {
     };
 
     const enhanceSpacefarerData = (data) => {
-      console.log("enhanceSpacefarerData");
       const wormholeSkillEnhancement = 5;
       const stardustCollectionEnhancement = 5;
 
@@ -51,7 +48,6 @@ class CosmicService extends cds.ApplicationService {
     });
 
     this.before("UPDATE", "Spacefarers", (req) => {
-      console.log("🔍 Validating spacefarer update...");
       validateSpacefarerData(req);
     });
 
