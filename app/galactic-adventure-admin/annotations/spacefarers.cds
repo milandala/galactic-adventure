@@ -12,11 +12,16 @@ annotate CosmicServiceAdmin.Spacefarers with @(
             Value: spacesuitColor.name,
             Label: 'Spacesuit color'
         },
+        {
+            Value: originPlanet.name,
+            Label: 'Origin planet'
+        },
     ],
 
     UI.SelectionFields          : [
         stardustCollection,
-        spacesuitColor_code
+        spacesuitColor_code,
+        originPlanet_code
     ],
 
     UI.FieldGroup #CosmicDetails: {
@@ -24,18 +29,12 @@ annotate CosmicServiceAdmin.Spacefarers with @(
         Data : [
             {Value: name},
             {Value: stardustCollection},
-            {Value: spacesuitColor_code},
             {Value: wormholeNavigationSkill},
+            {Value: spacesuitColor_code},
+            {Value: department_ID},
+            {Value: position_ID},
             {
-                Value: department.name,
-                Label: 'Department'
-            },
-            {
-                Value: position.name,
-                Label: 'Position'
-            },
-            {
-                Value: originPlanet.name,
+                Value: originPlanet_code,
                 Label: 'Origin planet'
             }
         ]
@@ -61,24 +60,20 @@ annotate CosmicServiceAdmin.Spacefarers with @(Capabilities: {NavigationRestrict
 }, });
 
 annotate CosmicServiceAdmin.Spacefarers with {
-    originPlanet   @Core.Immutable
-                   @(
+    originPlanet   @(
+        Common.Label                   : 'Origin planet',
         Common.ValueList               : {
             Label         : 'Select Planet for New Spacefarer',
             CollectionPath: 'Planets',
             Parameters    : [
                 {
-                    $Type            : 'Common.ValueListParameterOut',
+                    $Type            : 'Common.ValueListParameterIn',
                     LocalDataProperty: originPlanet_code,
                     ValueListProperty: 'code'
                 },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'name'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'dangerLevel'
                 }
             ]
         },
@@ -110,22 +105,52 @@ annotate CosmicServiceAdmin.Spacefarers with {
             ]
         }
     );
+
+    department     @(
+        Common.Label                   : 'Department',
+        Common                         : {
+            Text           : department.name,
+            TextArrangement: #TextOnly
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'Department',
+            CollectionPath: 'Departments',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterIn',
+                    LocalDataProperty: department_ID,
+                    ValueListProperty: 'ID'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                }
+            ]
+        }
+    );
+
+    position       @(
+        Common.Label                   : 'Position',
+        Common                         : {
+            Text           : position.name,
+            TextArrangement: #TextOnly
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.ValueList               : {
+            Label         : 'Position',
+            CollectionPath: 'Positions',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterIn',
+                    LocalDataProperty: position_ID,
+                    ValueListProperty: 'ID'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
+                }
+            ]
+        }
+    );
 }
-
-annotate CosmicServiceAdmin.Departments with @(
-    Capabilities.InsertRestrictions.Insertable: false,
-    Capabilities.UpdateRestrictions.Updatable : false,
-    Capabilities.DeleteRestrictions.Deletable : false
-);
-
-annotate CosmicServiceAdmin.Positions with @(
-    Capabilities.InsertRestrictions.Insertable: false,
-    Capabilities.UpdateRestrictions.Updatable : false,
-    Capabilities.DeleteRestrictions.Deletable : false
-);
-
-annotate CosmicServiceAdmin.Planets with @(
-    Capabilities.InsertRestrictions.Insertable: false,
-    Capabilities.UpdateRestrictions.Updatable : false,
-    Capabilities.DeleteRestrictions.Deletable : false
-);
