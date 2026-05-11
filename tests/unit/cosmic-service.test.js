@@ -34,7 +34,7 @@ describe("CosmicService", () => {
       name: "TestFarer",
       stardustCollection: initialSkillLevel,
       wormholeNavigationSkill: initialSkillLevel,
-      spacesuitColor: "blue",
+      spacesuitColor_code: "BLUE",
       originPlanet_code: "EARTH",
     };
 
@@ -58,7 +58,7 @@ describe("CosmicService", () => {
       name: "BadFarer",
       stardustCollection: invalidSkillLevel,
       wormholeNavigationSkill: 5,
-      spacesuitColor: "red",
+      spacesuitColor_code: "RED",
       originPlanet_code: "EARTH",
     };
 
@@ -75,7 +75,7 @@ describe("CosmicService", () => {
       name: "BadFarer2",
       stardustCollection: 10,
       wormholeNavigationSkill: invalidSkillLevel,
-      spacesuitColor: "green",
+      spacesuitColor_code: "GREEN",
       originPlanet_code: "EARTH",
     };
 
