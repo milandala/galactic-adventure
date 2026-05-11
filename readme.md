@@ -2,7 +2,7 @@
 
 ## Overview
 
-Galactic Adventure is a SAP Cloud Application Programming (CAP) project that manages spacefarers across the galaxy. It enforces planet-based data isolation — users can only access spacefarers from their own planet. The project exposes an OData v4 service consumed by a SAP Fiori Elements List Report application.
+Galactic Adventure is a SAP Cloud Application Programming (CAP) project that manages spacefarers across the galaxy. It enforces planet-based data isolation — regular users can only access and manage spacefarers from their own planet, while admin users have full control over all entities. The project exposes two OData v4 services consumed by two separate SAP Fiori Elements List Report applications.
 
 ---
 
@@ -10,21 +10,28 @@ Galactic Adventure is a SAP Cloud Application Programming (CAP) project that man
 
 ```
 galactic-adventure/
-├── app/                          # UI layer
-│   └── galactic-adventure/       # Fiori Elements app
-│       └─── annotations.cds       # UI annotations (LineItem, Facets, FieldGroups)
+├── app/
+│   ├── galactic-adventure/           # Fiori Elements app (regular users)
+│   │   ├── webapp/
+│   │   │   └── annotations.cds       # UI annotations
+│   │   └── manifest.json
+│   └── galactic-adventure-admin/     # Fiori Elements app (admin users)
+│       ├── webapp/
+│       │   └── annotations.cds
+│       └── manifest.json
 │
-├── db/                           # Data layer
-│   ├── schema.cds                # Entity definitions
-│   └── data/                     # CSV seed data
-│       ├── galactic-Spacefarers.csv
-│       ├── galactic-Planets.csv
-│       ├── galactic-Departments.csv
-│       └── galactic-Positions.csv
-├── srv/                          # Service layer
-│   ├── cosmic-service.cds        # Service definition & authorization
-│   └── cosmic-service.js         # Custom event handlers
-└── package.json                  # Project config, mocked users
+├── db/                               # Data layer
+│   ├── schema.cds                    # Entity definitions
+│   └── data/                         # CSV seed data
+│
+├── srv/                              # Service layer
+│   ├── cosmic-service.cds            # User service definition & authorization
+│   ├── cosmic-service.js             # User service event handlers
+│   ├── cosmic-service-admin.cds      # Admin service definition
+│   ├── cosmic-service-admin.js       # Admin service event handlers
+│   └── email-service.js             # Nodemailer email helper
+│
+└── package.json                      # Project config, mocked users
 ```
 
 ---
@@ -41,46 +48,52 @@ galactic-adventure/
 │ name              : String              │
 │ stardustCollection: Integer             │
 │ wormholeNavSkill  : Integer             │
-│ spacesuitColor    : String              │
 │ originPlanet_code : String (FK)         │
+│ spacesuitColor_code: String (FK)        │
 │ department_ID     : UUID (FK)           │
 │ position_ID       : UUID (FK)           │
-└──────────┬──────────┬───────────────────┘
-           │          │              │
-           │          │              │
-    ┌──────▼───┐  ┌───▼────────┐  ┌─▼──────────┐
-    │ Planets  │  │Departments │  │ Positions  │
-    │──────────│  │────────────│  │────────────│
-    │code (key)│  │ ID (key)   │  │ ID (key)   │
-    │name      │  │ name       │  │ name       │
-    │dangerLvl │  │ role       │  │gravityLevel│
-    └──────────┘  └────────────┘  └────────────┘
+└──────┬───────────┬───────────┬──────────┘
+       │           │           │          │
+┌──────▼───┐ ┌────▼───────┐ ┌─▼────────┐ ┌▼──────────────┐
+│ Planets  │ │Departments │ │Positions │ │SpacesuitColors│
+│──────────│ │────────────│ │──────────│ │───────────────│
+│code (key)│ │ ID (key)   │ │ID (key)  │ │code (key)     │
+│name      │ │ name       │ │name      │ │name           │
+│dangerLvl │ │ role       │ │gravityLvl│ └───────────────┘
+└──────────┘ └────────────┘ └──────────┘
 ```
 
 ### Entity Descriptions
 
-**Spacefarers** — the core entity representing individual spacefarers. Each spacefarer belongs to a planet, and optionally to a department and position. Seed data is loaded from `galactic-Spacefarers.csv` using fixed UUIDs for cross-referencing.
+**Spacefarers** — the core entity representing individual spacefarers. Each spacefarer belongs to a planet, a department, a position, and has an associated spacesuit color. Seed data is loaded from `galactic-Spacefarers.csv` using fixed UUIDs for cross-referencing.
 
-**Planets** — uses `code` (e.g. `EARTH`, `MARS`) as the natural primary key instead of a generated UUID. This makes cross-referencing in CSV seed data straightforward and human-readable. I also tried to use different approaches for cross-referencing seed data.
+**Planets** — uses `code` (e.g. `EARTH`, `MARS`) as the natural primary key instead of a generated UUID. This makes cross-referencing in CSV seed data straightforward and human-readable.
 
-**Departments** — reference data representing organizational units. Read-only for all authenticated users via `@restrict`.
+**SpacesuitColors** — reference entity for valid spacesuit colors (e.g. `red`, `blue`). Using an entity instead of a CDS enum ensures a single source of truth — colors can be added or removed from the database without requiring code changes.
 
-**Positions** — reference data representing roles within departments. Read-only for all authenticated users via `@restrict`.
+**Departments** — reference data representing organizational units. Read-only for regular users.
+
+**Positions** — reference data representing roles within departments. Read-only for regular users.
 
 ---
 
 ## Service Layer
 
-### CosmicService
+### CosmicService (Regular Users)
 
-Exposed at `/odata/v4/cosmic/`. Requires authentication for all endpoints. To conform to the requirement of __users can only access spacefarers from their own planet__, I have restricted read operations for every user to protect data integrity.
+Exposed at `/odata/v4/cosmic/`. Requires authentication. Users can only access and manage spacefarers from their own planet — enforced via both a `@restrict` where clause and backend event handlers.
 
-| Entity       | Allowed Operations          | Restriction                                      |
-|--------------|-----------------------------|--------------------------------------------------|
-| Spacefarers  | CREATE, READ, UPDATE, DELETE| Only spacefarers from the user's own planet      |
-| Departments  | READ                        | All authenticated users                          |
-| Positions    | READ                        | All authenticated users                          |
-| Planets      | READ                        | All authenticated users                          |
+| Entity        | Allowed Operations           | Restriction                                  |
+|---------------|------------------------------|----------------------------------------------|
+| Spacefarers   | CREATE, READ, UPDATE, DELETE | Only spacefarers from the user's own planet  |
+| Departments   | READ                         | All authenticated users                      |
+| Positions     | READ                         | All authenticated users                      |
+| Planets       | READ                         | All authenticated users                      |
+| SpacesuitColors | READ                       | All authenticated users                      |
+
+### CosmicServiceAdmin (Admin Users)
+
+Exposed at `/odata/v4/cosmic-service-admin/`. Requires the `admin` role. Full CRUD on all entities with no planet-based restrictions.
 
 ### Planet-Based Authorization
 
@@ -102,69 +115,75 @@ The `$user.planetCode` value is resolved from the authenticated user's `attr.pla
 }
 ```
 
-> **Important:** The attribute must be defined under `attr` (not `attributes`) for `$user.planetCode` to resolve correctly in the `@restrict` where clause.
+> **Important:** The attribute must be defined under `attr` for `$user.planetCode` to resolve correctly in the `@restrict` where clause.
 
 ### Query Limiting
 
-To enforce server-side pagination, the Spacefarers entity applies a query limit:
+The user-facing Spacefarers entity applies a server-side query limit:
 
 ```cds
 @cds.query.limit: { default: 10, max: 20 }
 ```
 
-This caps all queries at 20 results regardless of what `$top` value the client sends.
+This caps all queries at 20 results per request regardless of what `$top` value the client sends. The admin service has no such limit, allowing admins to paginate freely through all records.
 
 ---
 
 ## Event Handlers
 
-Custom handlers are defined in `srv/cosmic-service.js`.
+### CosmicService Handlers (`srv/cosmic-service.js`)
 
-### Before CREATE — Validation & Enhancement
+#### Before CREATE (drafts) — Auto-assign Origin Planet
 
-Before a new spacefarer is created, the handler:
-1. Validates that `wormholeNavigationSkill` and `stardustCollection` are above 0
-2. Enhances both values by +5 as a "cosmic boost"
+When a user clicks Create, the origin planet is automatically pre-filled from their user profile before the draft is initialized:
+
+#### Before CREATE — Validation & Enhancement
+
+When the draft is activated (saved), the handler:
+1. Validates that `wormholeNavigationSkill` and `stardustCollection` are non-negative numbers
+2. Validates that `originPlanet_code` matches the user's own planet (tamper protection)
+3. Enhances both skill values by +5 as a "cosmic boost"
 
 ```
 Client POST /Spacefarers
         │
         ▼
 ┌───────────────────┐
-│ validateSpacefarer│  → rejects if skill/stardust < 0
+│ validateSpacefarer│  → rejects if values invalid or planet mismatch
 └────────┬──────────┘
          │
          ▼
 ┌───────────────────┐
-│  enhanceSkills    │  → adds +5 to both fields
+│  enhanceSkills    │  → adds +5 to wormholeNavigationSkill and stardustCollection
 └────────┬──────────┘
          │
          ▼
     Record saved
 ```
 
-### After CREATE — Welcome Notification
+#### After CREATE — Welcome Email
 
-After a spacefarer is successfully created, a simulated welcome email is logged to the console congratulating the new spacefarer on joining the cosmic fleet.
+After a spacefarer is successfully created, a welcome email is sent.
+
+### CosmicServiceAdmin Handlers (`srv/cosmic-service-admin.js`)
+
+Same validation and enhancement logic as the user service, but without the planet-matching check — admins can create spacefarers for any planet.
 
 ---
 
-## UI Application
+## Email Service (`srv/email-service.js`)
 
-Built with SAP Fiori Elements, the app consists of two pages:
+Uses Nodemailer to send a welcome email when a spacefarer is created. SMTP configuration is provided via a `.env` file at the project root.
 
-### List Report (Task 4)
-- Displays all spacefarers visible to the authenticated user
-- Columns: Name, Stardust Collection, Spacesuit Color, Origin Planet
-- Filter bar: filter by Stardust Collection and Spacesuit Color
-- Sorting: available on all columns
-- Pagination: enforced server-side via `@cds.query.limit`
+---
 
-### Object Page (Task 5)
-- Opens when a row is clicked in the List Report
-- Displays full spacefarer details in a "Cosmic Details" section
-- Supports editing via SAP Fiori draft pattern (`@odata.draft.enabled`)
-- `originPlanet` is immutable (`@Core.Immutable`) — prevents users from reassigning spacefarers to other planets, which would cause data isolation issues
+## UI Applications
+
+Two SAP Fiori Elements applications are included, each consisting of a List Report and an Object Page.
+
+**Galactic Adventure** (`app/galactic-adventure`) — points to `CosmicService`. Regular users see and manage only their own planet's spacefarers.
+
+**Galactic Adventure Admin** (`app/galactic-adventure-admin`) — points to `CosmicServiceAdmin`. Admins have full CRUD access to all entities across all planets.
 
 ---
 
@@ -172,12 +191,12 @@ Built with SAP Fiori Elements, the app consists of two pages:
 
 The project uses CAP's mocked authentication strategy for local development. Users are defined in `package.json`:
 
-| Username   | Password | Planet |
-|------------|----------|--------|
-| spacepilot | 123      | EARTH  |
-| alien      | 123      | MARS   |
+| Username   | Password | Planet | Role  |
+|------------|----------|--------|-------|
+| spacepilot | 123      | EARTH  | —     |
+| alien      | 123      | MARS   | —     |
+| admin      | admin    | —      | admin |
 
-In a production environment, mocked auth would be replaced with a real provider such as XSUAA, with planet codes delivered as JWT claims.
 
 ---
 
@@ -187,14 +206,15 @@ In a production environment, mocked auth would be replaced with a real provider 
 # Install dependencies
 npm install
 
-# Deploy schema and seed data
-cds deploy --to sqlite
-
 # Start the development server
 cds watch
 ```
 
 The app is then available at:
 - CAP landing page: `http://localhost:4004`
-- Fiori app: `http://localhost:4004/galactic-adventure/webapp/index.html`
-- OData service: `http://localhost:4004/odata/v4/cosmic`
+- User Fiori app: `http://localhost:4004/galactic-adventure/webapp/index.html`
+- Admin Fiori app: `http://localhost:4004/galactic-adventure-admin/webapp/index.html`
+- User OData service: `http://localhost:4004/odata/v4/cosmic`
+- Admin OData service: `http://localhost:4004/odata/v4/cosmic-service-admin`
+- Fiori preview (user): `http://localhost:4004/$fiori-preview/CosmicService/Spacefarers#preview-app`
+- Fiori preview (admin): `http://localhost:4004/$fiori-preview/CosmicServiceAdmin/Spacefarers#preview-app`
